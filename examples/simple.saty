@@ -1,0 +1,63 @@
+@require: stdjareport
+@require: musikui
+%@import: ../musikui
+
+document (|
+  title = {};
+  author = {};
+|) '<
++p{
+  \musikui(Kake)
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\noneaten{7}|\eaten{}|})
+    [
+      (Musi ({|\eaten{}|\eaten{}|\eaten{}|\noneaten{7}|\eaten{}|}, 0));
+      (Musi ({|\noneaten{7}|\eaten{}|\eaten{}|\eaten{}|}, 1));
+      (Musi ({|\eaten{}|\eaten{}|\noneaten{7}|\eaten{}|}, 3));
+      (Sen);
+    ];
+  }
+
+  +p{
+    \musikui(Wari)
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    [
+      (Musi ({|\eaten{}|\eaten{}|}, 3));
+      (Sen);
+      (Musi ({|\eaten{}|\eaten{}|}, 2));
+      (Musi ({|\eaten{}|}, 2));
+      (Sen);
+      (Musi ({|\eaten{}|\eaten{}|\eaten{}|}, 1));
+      (Musi ({|\eaten{}|\eaten{}|}, 1));
+      (Sen);
+      (Musi ({|\eaten{}|\eaten{}|}, 0));
+      (Musi ({|\noneaten{2}|\eaten{}|}, 0));
+      (Sen);
+      (Musi ({|\noneaten{0}|}, 0))
+    ];
+  }
+  +p{
+    \musikui(Wari)
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|})
+    ({|\eaten{}|\eaten{}|\eaten{}|\eaten{}|})
+    [
+      (Musi ({|\eaten{}|\eaten{}|}, 3));
+      (BubunSen (3, 3));
+      (Musi ({|\eaten{}|\eaten{}|}, 2));
+      (Musi ({|\eaten{}|}, 2));
+      (BubunSen (2, 2));
+      (Musi ({|\eaten{}|\eaten{}|\eaten{}|}, 1));
+      (Musi ({|\eaten{}|\eaten{}|}, 1));
+      (BubunSen (3, 1));
+      (Musi ({|\eaten{}|\eaten{}|}, 0));
+      (Musi ({|\noneaten{2}|\eaten{}|}, 0));
+      (BubunSen (2, 0));
+      (Musi ({|\noneaten{0}|}, 0))
+    ];
+  }
+
+>
