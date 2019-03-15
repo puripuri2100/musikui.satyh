@@ -9,4 +9,4 @@ This package released under [the MIT license](https://github.com/puripuri2100/mu
 
 ---
 
-(c )Naoki Kaneko
+(c) 2019 Naoki Kaneko (a.k.a. puripuri2100.)
