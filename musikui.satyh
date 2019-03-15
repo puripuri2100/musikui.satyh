@@ -1,0 +1,343 @@
+@require: gr
+@require: color
+@require: list
+@require: math
+
+
+type musikui-type = Kake | Wari | Tasi | Hiki
+type musi-type =
+  | Musi of inline-text list * int
+  | Sen
+  | BubunSen of int * int
+
+module Musikui : sig
+
+  direct \eaten : [inline-text] inline-cmd
+  direct \noneaten : [inline-text] inline-cmd
+  direct \halfeaten : [inline-text] inline-cmd
+  direct \halfnoneaten : [inline-text] inline-cmd
+  direct \hhalfeaten : [inline-text; inline-text] inline-cmd
+  direct \hhalfnoneaten : [inline-text; inline-text] inline-cmd
+
+  direct \musikui : [musikui-type; inline-text list; inline-text list; inline-text list; musi-type list] inline-cmd
+
+end = struct
+
+
+% 長さ関係
+let em ctx = get-font-size ctx
+let mk-width ctx     = (em ctx) *' 1.2
+let mk-halfwidth ctx = (mk-width ctx) *' 0.5
+let mk-height ctx    = (em ctx) *' 0.96
+let mk-depth ctx     = (em ctx) *' 0.24
+let mk-hgap ctx      = (em ctx) *' 0.4
+let mk-vgap ctx      = (em ctx) *' 0.4
+let mk-rule   = 0.4pt
+let-mutable mk-rule-width <- 0pt
+let musiopsymbol = ${\times}
+let musiwarikakko ctx hgt dpt hgtaxis =
+  let color = get-text-color ctx in
+  let fontsize = get-font-size ctx in
+  let path (x, y) =
+    let y1= (hgt +' dpt) *' 0.28 in
+    let h-gap = hgt -' hgtaxis in
+    let d-gap = dpt +' hgtaxis in
+    let x1 = (hgt +' dpt) *' 0.23 in
+    let x2 = (hgt +' dpt) *' 0.33 in
+    start-path (x, y -' dpt -' y1)
+      |> bezier-to (x +' x1, y +' hgtaxis -' ((d-gap +' y1) *' 0.5))
+        (x +' x1, y +' hgtaxis +' ((d-gap +' y1) *' 0.5)) (x, y +' hgt +' y1)
+      |> bezier-to (x +' x2, y +' hgtaxis +' ((d-gap +' y1) *' 0.5))
+        (x +' x2, y +' hgtaxis -' ((d-gap +' y1) *' 0.5)) (x, y -' dpt -' y1)
+      |> close-with-line
+  in
+  let widparen = (hgt +' dpt) *' 0.33 in
+  let graphics point = [ fill color (path point); ] in %[ stroke 0.1pt color (path point); ] in%
+    (inline-graphics widparen (mk-height ctx) (mk-depth ctx) graphics)
+
+
+
+let eaten ctx color ib =
+  let (w, h, d) = ((mk-width ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub, h-sub, d-sub) = get-natural-metrics ib in
+  let xp = (w -' w-sub) *' 0.5 in
+  let yp = h -' h-sub -' (((h +' d) -' (h-sub +' d-sub)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics w h d (fun (x, y) ->
+      [
+        stroke thickness color
+          (start-path (x, y -' d)
+            |> line-to (x +' w, y -' d)
+            |> line-to (x +' w, y +' h)
+            |> line-to (x, y +' h)
+            |> close-with-line);
+
+        draw-text (x +' xp, y +' yp) ib
+      ]
+    )
+
+let noneaten ctx color ib =
+  let (w, h, d) = ((mk-width ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub, h-sub, d-sub) = get-natural-metrics ib in
+  let xp = (w -' w-sub) *' 0.5 in
+  let yp = h -' h-sub -' (((h +' d) -' (h-sub +' d-sub)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics w h d (fun (x, y) ->
+      [
+        draw-text (x +' xp, y +' yp) ib
+      ]
+    )
+
+
+let halfeaten ctx color ib =
+  let (w, h, d) = ((mk-halfwidth ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub, h-sub, d-sub) = get-natural-metrics ib in
+  let xp = (w -' w-sub) *' 0.5 in
+  let yp = h -' h-sub -' (((h +' d) -' (h-sub +' d-sub)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics w h d (fun (x, y) ->
+      [
+        stroke thickness color
+          (start-path (x, y -' d)
+            |> line-to (x +' w, y -' d)
+            |> line-to (x +' w, y +' h)
+            |> line-to (x, y +' h)
+            |> close-with-line);
+
+        draw-text (x +' xp, y +' yp) ib
+      ]
+    )
+
+let halfnoneaten ctx color ib =
+  let (w, h, d) = ((mk-halfwidth ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub, h-sub, d-sub) = get-natural-metrics ib in
+  let xp = (w -' w-sub) *' 0.5 in
+  let yp = h -' h-sub -' (((h +' d) -' (h-sub +' d-sub)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics w h d (fun (x, y) ->
+      [
+        draw-text (x +' xp, y +' yp) ib
+      ]
+    )
+
+
+let hhalfeaten ctx color ib1 ib2 =
+  let (w, h, d) = ((mk-halfwidth ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub-1, h-sub-1, d-sub-1) = get-natural-metrics ib1 in
+  let (w-sub-2, h-sub-2, d-sub-2) = get-natural-metrics ib2 in
+  let xp-1 = (w -' w-sub-1) *' 0.5 in
+  let yp-1 = h -' h-sub-1 -' (((h +' d) -' (h-sub-1 +' d-sub-1)) *' 0.5) in
+  let xp-2 = (w -' w-sub-2) *' 0.5 in
+  let yp-2 = h -' h-sub-2 -' (((h +' d) -' (h-sub-2 +' d-sub-2)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics (w +' w) h d (fun (x, y) ->
+      [
+        stroke thickness color
+          (start-path (x, y -' d)
+            |> line-to (x +' w, y -' d)
+            |> line-to (x +' w, y +' h)
+            |> line-to (x, y +' h)
+            |> close-with-line);
+
+        stroke thickness color
+          (start-path (x +' w, y -' d)
+            |> line-to (x +' w +' w, y -' d)
+            |> line-to (x +' w +' w, y +' h)
+            |> line-to (x +' w, y +' h)
+            |> close-with-line);
+
+        draw-text (x +' xp-1, y +' yp-1) ib1;
+        draw-text (x +' w +' xp-2, y +' yp-2) ib2;
+      ]
+    )
+
+let hhalfnoneaten ctx color ib1 ib2 =
+  let (w, h, d) = ((mk-halfwidth ctx), (mk-height ctx), (mk-depth ctx)) in
+  let (w-sub-1, h-sub-1, d-sub-1) = get-natural-metrics ib1 in
+  let (w-sub-2, h-sub-2, d-sub-2) = get-natural-metrics ib2 in
+  let xp-1 = (w -' w-sub-1) *' 0.5 in
+  let yp-1 = h -' h-sub-1 -' (((h +' d) -' (h-sub-1 +' d-sub-1)) *' 0.5) in
+  let xp-2 = (w -' w-sub-2) *' 0.5 in
+  let yp-2 = h -' h-sub-2 -' (((h +' d) -' (h-sub-2 +' d-sub-2)) *' 0.5) in
+  let thickness = mk-rule in
+    inline-graphics w h d (fun (x, y) ->
+      [
+        draw-text (x +' xp-1, y +' yp-1) ib1;
+        draw-text (x +' w +' xp-2, y +' yp-2) ib2;
+      ]
+    )
+
+
+let-inline ctx \eaten it =
+  let color = get-text-color ctx in
+    eaten ctx color (read-inline ctx it)
+
+let-inline ctx \noneaten it =
+  let color = get-text-color ctx in
+    noneaten ctx color (read-inline ctx it)
+
+
+let-inline ctx \halfeaten it =
+  let color = get-text-color ctx in
+    halfeaten ctx color (read-inline ctx it)
+
+
+let-inline ctx \halfnoneaten it =
+  let color = get-text-color ctx in
+    halfnoneaten ctx color (read-inline ctx it)
+
+let-inline ctx \hhalfeaten it1 it2 =
+  let color = get-text-color ctx in
+    hhalfeaten ctx color (read-inline ctx it1) (read-inline ctx it2)
+
+
+let-inline ctx \hhalfnoneaten it1 it2 =
+  let color = get-text-color ctx in
+    hhalfnoneaten ctx color (read-inline ctx it1) (read-inline ctx it2)
+
+
+
+let it-setuzoku ctx x y = x ++ inline-skip (mk-hgap ctx) ++ y
+
+let bb-setuzoku ctx x y = x +++ block-skip (mk-vgap ctx) +++ y
+
+let it-list-2-ib ctx list = List.map (read-inline ctx) list |> List.fold-left (it-setuzoku ctx) inline-nil
+
+
+let musikui-kake ctx rareru ru kotae katei =
+  let color = get-text-color ctx in
+  let musikui-width = get-natural-width kotae in
+  let ctx-1 = set-paragraph-margin 0pt 0pt ctx in
+  let ib-2-bb ctx ib =
+    let ib-width = get-natural-width ib in
+    let space = musikui-width -' ib-width in
+      line-break false false ctx-1 (inline-skip space ++ ib)
+  in
+  let musiopsymbol-ib = inline-skip (mk-hgap ctx) ++
+    noneaten ctx color (embed-math ctx musiopsymbol)
+  in
+  let ib-2-bb-kakeru ctx ib =
+    let ib-width = get-natural-width ib in
+    let musiopsymbol-width = get-natural-width musiopsymbol-ib in
+    let space = musikui-width -' ib-width -' musiopsymbol-width in
+      line-break false false ctx-1 (musiopsymbol-ib ++ inline-skip space ++ ib)
+  in
+  let () = mk-rule-width <- musikui-width in
+  let kake-rule width =
+    let thickness = mk-rule in
+    let color = get-text-color ctx in
+    let (w, h, d) = (width, mk-rule, 0pt) in
+    inline-graphics w h d (fun (x, y) ->
+      List.map (stroke thickness color) [
+        Gr.line (x, y) (x +' w, y)
+      ]
+    )
+  in
+  let musi-type-2-ib musi =
+    match musi with
+    | Musi (it-list, space) ->
+      let musi-ib = it-list-2-ib ctx it-list in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-ib) -' right-space in
+        inline-skip left-space ++ musi-ib ++ inline-skip right-space
+
+    | Sen -> kake-rule !mk-rule-width
+
+    | BubunSen (num, space) ->
+      let musi-rule = kake-rule (((mk-width ctx) +' (mk-hgap ctx)) *' float num) in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-rule) -' right-space in
+        inline-skip left-space ++ musi-rule ++ inline-skip right-space
+
+  in
+  let bb-katei =
+    List.map musi-type-2-ib katei |> List.map (ib-2-bb ctx) |> List.fold-left (bb-setuzoku ctx) block-nil
+  in
+  let bb-main ctx =
+    (ib-2-bb ctx rareru) +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb-kakeru ctx ru) +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb ctx (kake-rule !mk-rule-width)) +++
+      bb-katei +++
+      block-skip (mk-vgap ctx)+++ (ib-2-bb ctx kotae)
+  in
+      embed-block-top ctx musikui-width (fun ctx -> bb-main ctx)
+
+
+let musikui-Wari ctx warareru waru kotae katei =
+  let color = get-text-color ctx in
+  let musiwarikakko-ib = musiwarikakko ctx (mk-height ctx) (mk-depth ctx) (((mk-height ctx) -' (mk-depth ctx)) *' 0.5) in
+  let musikui-width = get-natural-width (waru ++ inline-skip (mk-hgap ctx) ++
+    musiwarikakko-ib ++ warareru) in
+  let ctx-1 = set-paragraph-margin 0pt 0pt ctx in
+  let ib-2-bb ctx ib =
+    let ib-width = get-natural-width ib in
+    let space = musikui-width -' ib-width in
+      line-break false false ctx-1 (inline-skip space ++ ib)
+  in
+  let musiopsymbol-ib = inline-skip (mk-hgap ctx) ++
+    noneaten ctx color (embed-math ctx musiopsymbol)
+  in
+  let () = mk-rule-width <- get-natural-width (musiwarikakko-ib ++ warareru) in
+  let wari-rule width =
+    let thickness = mk-rule in
+    let color = get-text-color ctx in
+    let (w, h, d) = (width, mk-rule, 0pt) in
+    inline-graphics w h d (fun (x, y) ->
+      List.map (stroke thickness color) [
+        Gr.line (x, y) (x +' w, y)
+      ]
+    )
+  in
+  let musi-type-2-ib musi =
+    match musi with
+    | Musi (it-list, space) ->
+      let musi-ib = it-list-2-ib ctx it-list in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-ib) -' right-space in
+        inline-skip left-space ++ musi-ib ++ inline-skip right-space
+
+    | Sen -> wari-rule !mk-rule-width
+
+    | BubunSen (num, space) ->
+      let musi-rule = wari-rule (((mk-width ctx) +' (mk-hgap ctx)) *' float num) in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-rule) -' right-space in
+        inline-skip left-space ++ musi-rule ++ inline-skip right-space
+
+  in
+  let bb-katei =
+    List.map musi-type-2-ib katei |> List.map (ib-2-bb ctx) |> List.fold-left (bb-setuzoku ctx) block-nil
+  in
+  let bb-main ctx =
+    (ib-2-bb ctx kotae +++ block-skip (mk-vgap ctx) +++
+      ib-2-bb ctx (wari-rule !mk-rule-width) +++ block-skip (mk-vgap ctx) +++
+      ib-2-bb ctx (waru ++ inline-skip(mk-hgap ctx) ++ musiwarikakko-ib
+        ++ warareru)) +++ bb-katei
+  in
+      embed-block-top ctx musikui-width (fun ctx -> bb-main ctx)
+
+
+
+let-inline ctx \musikui musikuitype rareru ru kotae katei =
+%  let it-list-2-ib list =
+%    List.map (read-inline ctx) list |> List.fold-left (it-setuzoku ctx) inline-nil
+%  in
+  let main =
+    match musikuitype with
+    | Kake -> musikui-kake ctx (it-list-2-ib ctx rareru)
+      (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
+
+    | Wari -> musikui-Wari ctx (it-list-2-ib ctx rareru)
+      (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
+
+    | Tasi -> musikui-kake ctx (it-list-2-ib ctx rareru)
+      (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
+
+    | Hiki -> musikui-kake ctx (it-list-2-ib ctx rareru)
+      (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
+
+  in
+    main
+
+
+end
