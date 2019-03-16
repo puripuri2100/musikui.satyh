@@ -59,5 +59,23 @@ document (|
       (Musi ({|\noneaten{0}|}, 0))
     ];
   }
+  +p{
+    \musikui (Tasi)
+    ({|\eaten{1}|\eaten{5}|})
+    ({|\eaten{2}|\eaten{3}|})
+    ({|\eaten{1}|\eaten{0}|\eaten{0}|})
+    [
+      (Musi ({|\eaten{}|\eaten{}|}, 0));
+    ];
+  }
+  +p{
+    \musikui (Hiki)
+    ({|\eaten{1}|\eaten{5}|})
+    ({|\eaten{2}|\eaten{3}|})
+    ({|\eaten{1}|\eaten{0}|\eaten{0}|})
+    [
+      (Musi ({|\eaten{}|\eaten{}|}, 0));
+    ];
+  }
 
 >
