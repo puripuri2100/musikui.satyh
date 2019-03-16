@@ -12,6 +12,10 @@ type musi-type =
 
 module Musikui : sig
 
+  val package-name : string
+  val package-author : string
+  val package-version : string
+
   direct \eaten : [inline-text] inline-cmd
   direct \noneaten : [inline-text] inline-cmd
   direct \halfeaten : [inline-text] inline-cmd
@@ -22,6 +26,10 @@ module Musikui : sig
   direct \musikui : [musikui-type; inline-text list; inline-text list; inline-text list; musi-type list] inline-cmd
 
 end = struct
+
+  val package-name = `musikui`
+  val package-author = `Naoki Kaneko(a.k.a puripuri2100)`
+  val package-version = `0.1`
 
 
 % 長さ関係
