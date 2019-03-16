@@ -54,7 +54,8 @@ let musiwarikakko ctx hgt dpt hgtaxis =
   let widparen = (hgt +' dpt) *' 0.33 in
   let graphics point = [ fill color (path point); ] in %[ stroke 0.1pt color (path point); ] in%
     (inline-graphics widparen (mk-height ctx) (mk-depth ctx) graphics)
-
+let musitasisymbol = ${+}
+let musihikisymbol = ${-}
 
 
 let eaten ctx color ib =
@@ -317,6 +318,123 @@ let musikui-Wari ctx warareru waru kotae katei =
       embed-block-top ctx musikui-width (fun ctx -> bb-main ctx)
 
 
+let musikui-tasi ctx rareru ru kotae katei =
+  let color = get-text-color ctx in
+  let musikui-width = get-natural-width kotae in
+  let ctx-1 = set-paragraph-margin 0pt 0pt ctx in
+  let ib-2-bb ctx ib =
+    let ib-width = get-natural-width ib in
+    let space = musikui-width -' ib-width in
+      line-break false false ctx-1 (inline-skip space ++ ib)
+  in
+  let musitasisymbol-ib = inline-skip (mk-hgap ctx) ++
+    noneaten ctx color (embed-math ctx musitasisymbol)
+  in
+  let ib-2-bb-kakeru ctx ib =
+    let ib-width = get-natural-width ib in
+    let musitasisymbol-width = get-natural-width musitasisymbol-ib in
+    let space = musikui-width -' ib-width -' musitasisymbol-width in
+      line-break false false ctx-1 (musitasisymbol-ib ++ inline-skip space ++ ib)
+  in
+  let () = mk-rule-width <- musikui-width in
+  let tasi-rule width =
+    let thickness = mk-rule in
+    let color = get-text-color ctx in
+    let (w, h, d) = (width, mk-rule, 0pt) in
+    inline-graphics w h d (fun (x, y) ->
+      List.map (stroke thickness color) [
+        Gr.line (x, y) (x +' w, y)
+      ]
+    )
+  in
+  let musi-type-2-ib musi =
+    match musi with
+    | Musi (it-list, space) ->
+      let musi-ib = it-list-2-ib ctx it-list in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-ib) -' right-space in
+        inline-skip left-space ++ musi-ib ++ inline-skip right-space
+
+    | Sen -> tasi-rule !mk-rule-width
+
+    | BubunSen (num, space) ->
+      let musi-rule = tasi-rule (((mk-width ctx) +' (mk-hgap ctx)) *' float num) in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-rule) -' right-space in
+        inline-skip left-space ++ musi-rule ++ inline-skip right-space
+
+  in
+  let bb-katei =
+    List.map musi-type-2-ib katei |> List.map (ib-2-bb ctx) |> List.fold-left (bb-setuzoku ctx) block-nil
+  in
+  let bb-main ctx =
+    (ib-2-bb ctx rareru) +++
+      bb-katei +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb-kakeru ctx ru) +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb ctx (tasi-rule !mk-rule-width)) +++
+      block-skip (mk-vgap ctx)+++ (ib-2-bb ctx kotae)
+  in
+      embed-block-top ctx musikui-width (fun ctx -> bb-main ctx)
+
+
+let musikui-hiki ctx rareru ru kotae katei =
+  let color = get-text-color ctx in
+  let musikui-width = get-natural-width kotae in
+  let ctx-1 = set-paragraph-margin 0pt 0pt ctx in
+  let ib-2-bb ctx ib =
+    let ib-width = get-natural-width ib in
+    let space = musikui-width -' ib-width in
+      line-break false false ctx-1 (inline-skip space ++ ib)
+  in
+  let musihikisymbol-ib = inline-skip (mk-hgap ctx) ++
+    noneaten ctx color (embed-math ctx musihikisymbol)
+  in
+  let ib-2-bb-kakeru ctx ib =
+    let ib-width = get-natural-width ib in
+    let musihikisymbol-width = get-natural-width musihikisymbol-ib in
+    let space = musikui-width -' ib-width -' musihikisymbol-width in
+      line-break false false ctx-1 (musihikisymbol-ib ++ inline-skip space ++ ib)
+  in
+  let () = mk-rule-width <- musikui-width in
+  let hiki-rule width =
+    let thickness = mk-rule in
+    let color = get-text-color ctx in
+    let (w, h, d) = (width, mk-rule, 0pt) in
+    inline-graphics w h d (fun (x, y) ->
+      List.map (stroke thickness color) [
+        Gr.line (x, y) (x +' w, y)
+      ]
+    )
+  in
+  let musi-type-2-ib musi =
+    match musi with
+    | Musi (it-list, space) ->
+      let musi-ib = it-list-2-ib ctx it-list in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-ib) -' right-space in
+        inline-skip left-space ++ musi-ib ++ inline-skip right-space
+
+    | Sen -> hiki-rule !mk-rule-width
+
+    | BubunSen (num, space) ->
+      let musi-rule = hiki-rule (((mk-width ctx) +' (mk-hgap ctx)) *' float num) in
+      let right-space = ((mk-width ctx) +' (mk-hgap ctx)) *' float space in
+      let left-space = musikui-width -' (get-natural-width musi-rule) -' right-space in
+        inline-skip left-space ++ musi-rule ++ inline-skip right-space
+
+  in
+  let bb-katei =
+    List.map musi-type-2-ib katei |> List.map (ib-2-bb ctx) |> List.fold-left (bb-setuzoku ctx) block-nil
+  in
+  let bb-main ctx =
+    (ib-2-bb ctx rareru) +++
+      bb-katei +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb-kakeru ctx ru) +++
+      block-skip (mk-vgap ctx) +++ (ib-2-bb ctx (hiki-rule !mk-rule-width)) +++
+      block-skip (mk-vgap ctx)+++ (ib-2-bb ctx kotae)
+  in
+      embed-block-top ctx musikui-width (fun ctx -> bb-main ctx)
+
 
 let-inline ctx \musikui musikuitype rareru ru kotae katei =
 %  let it-list-2-ib list =
@@ -330,10 +448,10 @@ let-inline ctx \musikui musikuitype rareru ru kotae katei =
     | Wari -> musikui-Wari ctx (it-list-2-ib ctx rareru)
       (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
 
-    | Tasi -> musikui-kake ctx (it-list-2-ib ctx rareru)
+    | Tasi -> musikui-tasi ctx (it-list-2-ib ctx rareru)
       (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
 
-    | Hiki -> musikui-kake ctx (it-list-2-ib ctx rareru)
+    | Hiki -> musikui-hiki ctx (it-list-2-ib ctx rareru)
       (it-list-2-ib ctx ru) (it-list-2-ib ctx kotae) katei
 
   in
