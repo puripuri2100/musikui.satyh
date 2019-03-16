@@ -27,9 +27,9 @@ module Musikui : sig
 
 end = struct
 
-  val package-name = `musikui`
-  val package-author = `Naoki Kaneko(a.k.a puripuri2100)`
-  val package-version = `0.1`
+  let package-name = `musikui`
+  let package-author = `Naoki Kaneko(a.k.a puripuri2100)`
+  let package-version = `0.1`
 
 
 % 長さ関係
