@@ -1,10 +1,12 @@
-@require: stdjareport
-@require: musikui
+@require: stdjabook
+@require: musikui/musikui
 %@import: ../musikui
 
 document (|
-  title = {};
-  author = {};
+  title = {musikui example};
+  author = {Naoki Kaneko (a.k.a. "puripuri2100")};
+  show-title = true;
+  show-toc = false;
 |) '<
 +p{
   \musikui(Kake)
